@@ -1,5 +1,9 @@
 package com.hust.coffeeshop.coffeeshopproject.service;
 
+import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderRequestDTO;
+import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderResponseDTO;
+import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderDetailRequestDTO; // MỚI: DTO request cho chi tiết đơn hàng
+import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderDetailResponseDTO;
 import com.hust.coffeeshop.coffeeshopproject.entity.Ingredient;
 import com.hust.coffeeshop.coffeeshopproject.entity.PurchaseOrder;
 import com.hust.coffeeshop.coffeeshopproject.entity.PurchaseOrderDetail;
@@ -8,20 +12,15 @@ import com.hust.coffeeshop.coffeeshopproject.repository.IngredientRepository;
 import com.hust.coffeeshop.coffeeshopproject.repository.PurchaseOrderDetailRepository;
 import com.hust.coffeeshop.coffeeshopproject.repository.PurchaseOrderRepository;
 import com.hust.coffeeshop.coffeeshopproject.repository.SupplierRepository;
-import jakarta.transaction.Transactional; // Import đúng thư viện Transactional
+import jakarta.persistence.EntityNotFoundException; // Thêm import này
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional; // Sửa từ jakarta.transaction.Transactional
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors; // Thêm import này
-
-// Import các DTO response mới
-import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderResponseDTO;
-import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderDetailResponseDTO;
-
+import java.util.stream.Collectors;
 
 @Service
 public class PurchaseOrderService {
@@ -41,93 +40,133 @@ public class PurchaseOrderService {
         this.purchaseOrderDetailRepository = purchaseOrderDetailRepository;
     }
 
-    // Lớp Request DTO (bạn có thể để nó ở đây hoặc chuyển sang package riêng)
-    public static class PurchaseOrderDetailRequest {
-        private Integer ingredientId;
-        private Double quantityOrdered;
-        private BigDecimal unitPrice;
-
-        // Getters and Setters
-        public Integer getIngredientId() {
-            return ingredientId;
-        }
-
-        public void setIngredientId(Integer ingredientId) {
-            this.ingredientId = ingredientId;
-        }
-
-        public Double getQuantityOrdered() {
-            return quantityOrdered;
-        }
-
-        public void setQuantityOrdered(Double quantityOrdered) {
-            this.quantityOrdered = quantityOrdered;
-        }
-
-        public BigDecimal getUnitPrice() {
-            return unitPrice;
-        }
-
-        public void setUnitPrice(BigDecimal unitPrice) {
-            this.unitPrice = unitPrice;
-        }
-    }
+    // Lớp Request DTO đã được chuyển ra ngoài package riêng: PurchaseOrderDetailRequestDTO.java
+    // Xóa lớp lồng này khỏi đây.
 
     @Transactional
-    public PurchaseOrder createPurchaseOrder(Integer supplierId, List<PurchaseOrderDetailRequest> details) {
-        Supplier supplier = supplierRepository.findById(supplierId)
-                .orElseThrow(() -> new RuntimeException("Supplier not found with ID: " + supplierId));
+    public PurchaseOrder createPurchaseOrder(Long supplierId, List<PurchaseOrderDetailRequestDTO> details) { // SỬA supplierId thành Long
+        Supplier supplier = supplierRepository.findById(supplierId) // SỬA supplierId thành Long
+                .orElseThrow(() -> new EntityNotFoundException("Supplier not found with ID: " + supplierId)); // SỬA: RuntimeException -> EntityNotFoundException
 
         PurchaseOrder purchaseOrder = new PurchaseOrder();
         purchaseOrder.setSupplier(supplier);
         purchaseOrder.setOrderDate(LocalDate.now());
-        purchaseOrder.setOrderStatus("Pending"); // Default status
-        purchaseOrder.setTotalAmount(BigDecimal.ZERO); // Sẽ tính toán sau
+        purchaseOrder.setOrderStatus("Pending");
+        purchaseOrder.setTotalAmount(BigDecimal.ZERO);
 
-        // Lưu đơn hàng trước để có purchaseOrderId
         purchaseOrder = purchaseOrderRepository.save(purchaseOrder);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<PurchaseOrderDetail> orderDetails = new ArrayList<>();
 
-        for (PurchaseOrderDetailRequest detailRequest : details) {
-            Ingredient ingredient = ingredientRepository.findById(detailRequest.getIngredientId())
-                    .orElseThrow(() -> new RuntimeException("Ingredient not found with ID: " + detailRequest.getIngredientId()));
+        for (PurchaseOrderDetailRequestDTO detailRequest : details) { // SỬA DTO type
+            Ingredient ingredient = ingredientRepository.findById(detailRequest.getIngredientId()) // SỬA: getIngredientId() tham số là Long
+                    .orElseThrow(() -> new EntityNotFoundException("Ingredient not found with ID: " + detailRequest.getIngredientId())); // SỬA: RuntimeException -> EntityNotFoundException
+
+            // Kiểm tra quantity
+            if (detailRequest.getQuantityOrdered() == null || detailRequest.getQuantityOrdered().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Quantity ordered for Ingredient ID " + detailRequest.getIngredientId() + " must be a positive number.");
+            }
 
             PurchaseOrderDetail detail = new PurchaseOrderDetail();
             detail.setPurchaseOrder(purchaseOrder);
             detail.setIngredient(ingredient);
-            detail.setQuantityOrdered(detailRequest.getQuantityOrdered());
+            detail.setQuantityOrdered(detailRequest.getQuantityOrdered()); // SỬA: Đã là BigDecimal từ DTO
             detail.setUnitPrice(detailRequest.getUnitPrice());
 
             orderDetails.add(detail);
-            totalAmount = totalAmount.add(detailRequest.getUnitPrice().multiply(BigDecimal.valueOf(detailRequest.getQuantityOrdered())));
+            totalAmount = totalAmount.add(detailRequest.getUnitPrice().multiply(detailRequest.getQuantityOrdered())); // SỬA: Nhân BigDecimal với BigDecimal
         }
 
-        purchaseOrder.setPurchaseOrderDetails(orderDetails); // Set chi tiết đơn hàng vào đơn hàng chính
+        purchaseOrder.setPurchaseOrderDetails(orderDetails);
         purchaseOrder.setTotalAmount(totalAmount);
 
-        // Lưu chi tiết đơn hàng (Cascade save nếu cấu hình đúng, hoặc lưu từng cái một)
-        // Nếu bạn dùng cascade = CascadeType.ALL trên @OneToMany trong PurchaseOrder Entity
-        // thì không cần vòng lặp save từng detail. Nếu không, hãy thêm:
-        // purchaseOrderDetailRepository.saveAll(orderDetails);
+        // purchaseOrderDetailRepository.saveAll(orderDetails); // Không cần nếu đã có cascade.ALL
 
-        return purchaseOrderRepository.save(purchaseOrder); // Lưu lại đơn hàng với totalAmount và details
+        return purchaseOrderRepository.save(purchaseOrder);
     }
 
     @Transactional
-    public PurchaseOrder updatePurchaseOrderStatus(Integer id, String status) {
-        PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Purchase order not found with ID: " + id));
+    public PurchaseOrder updatePurchaseOrderStatus(Long id, String status) { // SỬA TẠI ĐÂY: Integer -> Long
+        PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(id) // SỬA TẠI ĐÂY
+                .orElseThrow(() -> new EntityNotFoundException("Purchase order not found with ID: " + id)); // SỬA: RuntimeException -> EntityNotFoundException
         purchaseOrder.setOrderStatus(status);
         return purchaseOrderRepository.save(purchaseOrder);
     }
 
     // FIX LỖI: Phương thức getSupplierByName từ câu hỏi trước
     public Supplier getSupplierByName(String supplierName) {
-        // .orElse(null) hoặc .orElseThrow() tùy vào logic bạn muốn
         return supplierRepository.findBySupplierName(supplierName)
-                .orElseThrow(() -> new RuntimeException("Supplier not found with name: " + supplierName));
+                .orElseThrow(() -> new EntityNotFoundException("Supplier not found with name: " + supplierName)); // SỬA: RuntimeException -> EntityNotFoundException
+    }
+
+    // MỚI: Thêm getAllPurchaseOrders
+    public List<PurchaseOrderResponseDTO> getAllPurchaseOrders() {
+        return purchaseOrderRepository.findAll().stream()
+                .map(this::convertToPurchaseOrderDTO)
+                .collect(Collectors.toList());
+    }
+
+    // MỚI: Thêm getPurchaseOrderById
+    public Optional<PurchaseOrderResponseDTO> getPurchaseOrderById(Long id) { // SỬA: Integer -> Long
+        return purchaseOrderRepository.findById(id)
+                .map(this::convertToPurchaseOrderDTO);
+    }
+
+    // MỚI: Thêm updatePurchaseOrder
+    @Transactional
+    public PurchaseOrderResponseDTO updatePurchaseOrder(Long id, PurchaseOrderRequestDTO requestDTO) { // SỬA: Integer -> Long
+        return purchaseOrderRepository.findById(id)
+                .map(existingOrder -> {
+                    existingOrder.setOrderDate(requestDTO.getOrderDate() != null ? requestDTO.getOrderDate() : existingOrder.getOrderDate());
+                    existingOrder.setExpectedDeliveryDate(requestDTO.getExpectedDeliveryDate());
+                    existingOrder.setActualDeliveryDate(requestDTO.getActualDeliveryDate());
+                    existingOrder.setOrderStatus(requestDTO.getOrderStatus() != null ? requestDTO.getOrderStatus() : existingOrder.getOrderStatus());
+                    existingOrder.setTotalAmount(requestDTO.getTotalAmount() != null ? requestDTO.getTotalAmount() : existingOrder.getTotalAmount());
+
+                    // Cập nhật chi tiết đơn hàng nhập kho
+                    if (requestDTO.getPurchaseOrderDetails() != null) {
+                        // Xóa các chi tiết cũ
+                        if (existingOrder.getPurchaseOrderDetails() != null && !existingOrder.getPurchaseOrderDetails().isEmpty()) {
+                            purchaseOrderDetailRepository.deleteAll(existingOrder.getPurchaseOrderDetails());
+                            existingOrder.getPurchaseOrderDetails().clear();
+                        }
+                        // Thêm chi tiết mới
+                        if (!requestDTO.getPurchaseOrderDetails().isEmpty()) {
+                            List<PurchaseOrderDetail> newDetails = new ArrayList<>();
+                            BigDecimal newTotalAmount = BigDecimal.ZERO;
+                            for (PurchaseOrderDetailRequestDTO detailDTO : requestDTO.getPurchaseOrderDetails()) {
+                                Ingredient ingredient = ingredientRepository.findById(detailDTO.getIngredientId())
+                                        .orElseThrow(() -> new EntityNotFoundException("Ingredient with ID " + detailDTO.getIngredientId() + " not found."));
+
+                                PurchaseOrderDetail detail = new PurchaseOrderDetail();
+                                detail.setPurchaseOrder(existingOrder);
+                                detail.setIngredient(ingredient);
+                                detail.setQuantityOrdered(detailDTO.getQuantityOrdered());
+                                detail.setUnitPrice(detailDTO.getUnitPrice());
+                                newDetails.add(detail);
+                                newTotalAmount = newTotalAmount.add(detailDTO.getUnitPrice().multiply(detailDTO.getQuantityOrdered()));
+                            }
+                            purchaseOrderDetailRepository.saveAll(newDetails);
+                            existingOrder.getPurchaseOrderDetails().addAll(newDetails);
+                            existingOrder.setTotalAmount(newTotalAmount); // Cập nhật lại tổng tiền
+                        } else {
+                            existingOrder.setTotalAmount(BigDecimal.ZERO); // Nếu không có chi tiết, tổng tiền là 0
+                        }
+                    }
+
+                    PurchaseOrder updatedOrder = purchaseOrderRepository.save(existingOrder);
+                    return convertToPurchaseOrderDTO(updatedOrder);
+                }).orElseThrow(() -> new EntityNotFoundException("Purchase Order with ID " + id + " not found."));
+    }
+
+    // MỚI: Thêm deletePurchaseOrder
+    @Transactional
+    public void deletePurchaseOrder(Long id) { // SỬA: Integer -> Long
+        if (!purchaseOrderRepository.existsById(id)) {
+            throw new EntityNotFoundException("Purchase Order with ID " + id + " not found.");
+        }
+        purchaseOrderRepository.deleteById(id);
     }
 
 
@@ -142,7 +181,6 @@ public class PurchaseOrderService {
         dto.setOrderStatus(purchaseOrder.getOrderStatus());
         dto.setTotalAmount(purchaseOrder.getTotalAmount());
 
-        // Ánh xạ thông tin Supplier
         if (purchaseOrder.getSupplier() != null) {
             dto.setSupplierId(purchaseOrder.getSupplier().getSupplierId());
             dto.setSupplierName(purchaseOrder.getSupplier().getSupplierName());
@@ -151,25 +189,24 @@ public class PurchaseOrderService {
             dto.setSupplierPhoneNumber(purchaseOrder.getSupplier().getPhoneNumber());
         }
 
-        // Ánh xạ PurchaseOrderDetails
         if (purchaseOrder.getPurchaseOrderDetails() != null && !purchaseOrder.getPurchaseOrderDetails().isEmpty()) {
             List<PurchaseOrderDetailResponseDTO> detailDTOs = purchaseOrder.getPurchaseOrderDetails().stream()
                     .map(this::convertToPurchaseOrderDetailDTO)
                     .collect(Collectors.toList());
             dto.setOrderDetails(detailDTOs);
         } else {
-            dto.setOrderDetails(new ArrayList<>()); // Trả về danh sách rỗng nếu không có chi tiết
+            dto.setOrderDetails(new ArrayList<>());
         }
-
         return dto;
     }
 
     public PurchaseOrderDetailResponseDTO convertToPurchaseOrderDetailDTO(PurchaseOrderDetail detail) {
         PurchaseOrderDetailResponseDTO dto = new PurchaseOrderDetailResponseDTO();
+        // Không cần OrderDetailId ở đây để tránh vòng lặp
+        // dto.setPurchaseOrderDetailId(detail.getPurchaseOrderDetailId());
         dto.setQuantityOrdered(detail.getQuantityOrdered());
         dto.setUnitPrice(detail.getUnitPrice());
 
-        // Ánh xạ thông tin Ingredient
         if (detail.getIngredient() != null) {
             dto.setIngredientId(detail.getIngredient().getIngredientId());
             dto.setIngredientName(detail.getIngredient().getIngredientName());

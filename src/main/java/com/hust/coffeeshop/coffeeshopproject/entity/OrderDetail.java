@@ -1,4 +1,4 @@
-package com.hust.coffeeshop.coffeeshopproject.entity; // Đảm bảo đúng package
+package com.hust.coffeeshop.coffeeshopproject.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,12 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-// THÊM CÁC DÒNG IMPORT NÀY:
-import com.hust.coffeeshop.coffeeshopproject.entity.CustomerOrder;
-import com.hust.coffeeshop.coffeeshopproject.entity.MenuItem;
 
 @Entity
-@Table(name = "order_detail") // Correct table name
+@Table(name = "order_detail")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,20 +16,20 @@ public class OrderDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orderdetailid") // PK is Integer
-    private Integer orderDetailId;
+    @Column(name = "orderdetailid")
+    private Long orderDetailId; // SỬA TẠI ĐÂY: Integer -> Long
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "orderid", nullable = false) // FK column name is 'orderid' in DB
-    private CustomerOrder customerOrder;
+    @JoinColumn(name = "orderid", nullable = false)
+    private CustomerOrder customerOrder; // CustomerOrder.orderId là Long
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menuitemid", nullable = false) // FK column name is 'menuitemid' in DB
-    private MenuItem menuItem;
+    @JoinColumn(name = "menuitemid", nullable = false)
+    private MenuItem menuItem; // MenuItem.menuItemId là Long
 
-    @Column(name = "quantity", nullable = false) // Correct name
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Column(name = "unitprice", nullable = false, precision = 10, scale = 2) // Correct type and name
+    @Column(name = "unitprice", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 }

@@ -1,7 +1,7 @@
 package com.hust.coffeeshop.coffeeshopproject.entity;
 
 import jakarta.persistence.*;
-import lombok.Data; // Nếu bạn dùng Lombok
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
@@ -9,19 +9,19 @@ import java.util.List;
 
 @Entity
 @Table(name = "supplier")
-@Data // Nếu dùng Lombok
-@NoArgsConstructor // Nếu dùng Lombok
-@AllArgsConstructor // Nếu dùng Lombok
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "supplierid")
-    private Integer supplierId;
+    private Long supplierId; // SỬA TẠI ĐÂY: Integer -> Long
 
-    @Column(name = "suppliername", length = 255, nullable = false, unique = true)
+    @Column(name = "suppliername", length = 100, nullable = false, unique = true) // Thêm length 100
     private String supplierName;
 
-    @Column(name = "contactperson", length = 100) // Correct name
+    @Column(name = "contactperson", length = 100)
     private String contactPerson;
 
     @Column(name = "phonenumber", length = 20)
@@ -33,9 +33,6 @@ public class Supplier {
     @Column(name = "address", length = 255)
     private String address;
 
-    // Mối quan hệ hai chiều: KHÔNG CÓ ANNOTATION JACKSON Ở ĐÂY
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PurchaseOrder> purchaseOrders;
-
-    // Constructor, getters và setters nếu không dùng Lombok
 }

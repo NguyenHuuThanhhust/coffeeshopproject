@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface CustomerOrderService {
     CustomerOrderResponseDTO createCustomerOrder(CustomerOrderRequestDTO requestDTO);
     List<CustomerOrderResponseDTO> getAllCustomerOrders();
-    Optional<CustomerOrderResponseDTO> getCustomerOrderById(Integer id);
-    CustomerOrderResponseDTO updateCustomerOrder(Integer id, CustomerOrderRequestDTO requestDTO);
-    void deleteCustomerOrder(Integer id);
+    Optional<CustomerOrderResponseDTO> getCustomerOrderById(Long id); // SỬA TẠI ĐÂY: Integer -> Long
+    CustomerOrderResponseDTO updateCustomerOrder(Long id, CustomerOrderRequestDTO requestDTO); // SỬA TẠI ĐÂY: Integer -> Long
+    void deleteCustomerOrder(Long id); // SỬA TẠI ĐÂY: Integer -> Long
 }

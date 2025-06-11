@@ -1,7 +1,7 @@
 package com.hust.coffeeshop.coffeeshopproject.entity;
 
 import jakarta.persistence.*;
-import lombok.Data; // Nếu bạn dùng Lombok
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
@@ -9,30 +9,26 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "purchase_order_detail")
-@Data // Nếu dùng Lombok
-@NoArgsConstructor // Nếu dùng Lombok
-@AllArgsConstructor // Nếu dùng Lombok
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PurchaseOrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "purchaseorderdetailid")
-    private Integer purchaseOrderDetailId;
+    private Long purchaseOrderDetailId; // SỬA TẠI ĐÂY: Integer -> Long
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchaseorderid", nullable = false)
-    // KHÔNG CÓ ANNOTATION JACKSON Ở ĐÂY
-    private PurchaseOrder purchaseOrder;
+    private PurchaseOrder purchaseOrder; // PurchaseOrder.purchaseOrderId là Long
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredientid", nullable = false)
-    // KHÔNG CÓ ANNOTATION JACKSON Ở ĐÂY
-    private Ingredient ingredient;
+    private Ingredient ingredient; // Ingredient.ingredientId là Long
 
-    @Column(name = "quantityordered", nullable = false)
-    private Double quantityOrdered;
+    @Column(name = "quantityordered", nullable = false, precision = 10, scale = 2) // SỬA TẠI ĐÂY: Double -> BigDecimal
+    private BigDecimal quantityOrdered;
 
     @Column(name = "unitprice", precision = 10, scale = 2, nullable = false)
     private BigDecimal unitPrice;
-
-    // Constructor, getters và setters nếu không dùng Lombok
 }

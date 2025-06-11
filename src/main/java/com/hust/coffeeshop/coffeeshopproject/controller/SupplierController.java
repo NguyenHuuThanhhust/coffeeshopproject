@@ -1,14 +1,16 @@
 package com.hust.coffeeshop.coffeeshopproject.controller;
 
+import com.hust.coffeeshop.coffeeshopproject.dto.SupplierRequestDTO;
 import com.hust.coffeeshop.coffeeshopproject.dto.SupplierResponseDTO;
-import com.hust.coffeeshop.coffeeshopproject.entity.Supplier; // Vẫn cần import Entity nếu service trả về Entity
+// import com.hust.coffeeshop.coffeeshopproject.entity.Supplier; // Không cần import Entity ở đây
 import com.hust.coffeeshop.coffeeshopproject.service.SupplierService;
+import jakarta.persistence.EntityNotFoundException; // Thêm import này
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional; // Thêm import này
 
 @RestController
 @RequestMapping("/api/suppliers")
@@ -22,66 +24,61 @@ public class SupplierController {
 
     @GetMapping
     public ResponseEntity<List<SupplierResponseDTO>> getAllSuppliers() {
-        List<Supplier> suppliers = supplierService.getAllSuppliers();
-        List<SupplierResponseDTO> responseDTOs = supplierService.convertToSupplierDTOs(suppliers);
-        return ResponseEntity.ok(responseDTOs);
+        // supplierService.getAllSuppliers() đã trả về List<SupplierResponseDTO>
+        List<SupplierResponseDTO> suppliers = supplierService.getAllSuppliers(); // DÒNG 26
+        return ResponseEntity.ok(suppliers);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SupplierResponseDTO> getSupplierById(@PathVariable Integer id) {
-        // Sử dụng phương thức getSupplierById() của service
-        return supplierService.getSupplierById(id) // <-- Sửa đổi ở đây
-                .map(supplierService::convertToSupplierDTO) // Ánh xạ sang DTO
+    public ResponseEntity<SupplierResponseDTO> getSupplierById(@PathVariable Long id) { // ID phải là Long
+        return supplierService.getSupplierById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // API lấy Supplier theo tên (trả về DTO nếu muốn)
-    @GetMapping("/name/{name}") // <-- API mới theo hình ảnh bạn cung cấp
+    @GetMapping("/name/{name}")
     public ResponseEntity<SupplierResponseDTO> getSupplierByName(@PathVariable String name) {
         try {
-            // SupplierService.getSupplierByName() trả về Supplier trực tiếp (đã xử lý Optional bên trong service)
-            Supplier supplier = supplierService.getSupplierByName(name);
-            SupplierResponseDTO responseDTO = supplierService.convertToSupplierDTO(supplier);
-            return ResponseEntity.ok(responseDTO);
-        } catch (RuntimeException e) {
-            // Log lỗi để dễ debug hơn
+            // supplierService.getSupplierByName() đã trả về SupplierResponseDTO
+            SupplierResponseDTO supplier = supplierService.getSupplierByName(name); // DÒNG 36
+            return ResponseEntity.ok(supplier);
+        } catch (EntityNotFoundException e) { // Sửa RuntimeException thành EntityNotFoundException
             System.err.println("Error fetching supplier by name: " + e.getMessage());
-            return ResponseEntity.notFound().build(); // Hoặc trả về lỗi cụ thể hơn
+            return ResponseEntity.notFound().build();
         }
     }
 
 
     @PostMapping
-    public ResponseEntity<SupplierResponseDTO> createSupplier(@RequestBody Supplier supplier) {
+    public ResponseEntity<SupplierResponseDTO> createSupplier(@RequestBody SupplierRequestDTO requestDTO) {
         try {
-            Supplier createdSupplier = supplierService.createSupplier(supplier);
-            SupplierResponseDTO responseDTO = supplierService.convertToSupplierDTO(createdSupplier); // Ánh xạ sang DTO
-            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
+            // supplierService.createSupplier() đã trả về SupplierResponseDTO
+            SupplierResponseDTO createdSupplier = supplierService.createSupplier(requestDTO); // DÒNG 44
+            return new ResponseEntity<>(createdSupplier, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) { // Sửa RuntimeException thành IllegalArgumentException
             System.err.println("Error creating supplier: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SupplierResponseDTO> updateSupplier(@PathVariable Integer id, @RequestBody Supplier supplier) {
+    public ResponseEntity<SupplierResponseDTO> updateSupplier(@PathVariable Long id, @RequestBody SupplierRequestDTO requestDTO) {
         try {
-            Supplier updatedSupplier = supplierService.updateSupplier(id, supplier);
-            SupplierResponseDTO responseDTO = supplierService.convertToSupplierDTO(updatedSupplier); // Ánh xạ sang DTO
-            return ResponseEntity.ok(responseDTO);
-        } catch (RuntimeException e) {
+            // supplierService.updateSupplier() đã trả về SupplierResponseDTO
+            SupplierResponseDTO updatedSupplier = supplierService.updateSupplier(id, requestDTO); // DÒNG 56
+            return ResponseEntity.ok(updatedSupplier);
+        } catch (EntityNotFoundException e) { // Sửa RuntimeException thành EntityNotFoundException
             System.err.println("Error updating supplier: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSupplier(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteSupplier(@PathVariable Long id) {
         try {
             supplierService.deleteSupplier(id);
             return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
+        } catch (EntityNotFoundException e) { // Sửa RuntimeException thành EntityNotFoundException
             System.err.println("Error deleting supplier: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

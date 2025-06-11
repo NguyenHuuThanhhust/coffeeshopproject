@@ -11,15 +11,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerRequestDTO {
-
     private String customerName;
-
     private String phoneNumber;
-
     private String email;
 
+    // Các trường này thường không được gửi khi tạo khách hàng mới
     private LocalDate dateJoined;
-
     private BigDecimal totalSpent;
     private String rankName;
 }

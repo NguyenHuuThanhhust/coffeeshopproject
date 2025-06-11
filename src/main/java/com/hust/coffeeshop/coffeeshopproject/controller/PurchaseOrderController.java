@@ -1,12 +1,9 @@
 package com.hust.coffeeshop.coffeeshopproject.controller;
 
-// import Entity này không còn cần thiết cho kiểu trả về
-// import com.hust.coffeeshop.coffeeshopproject.entity.PurchaseOrder;
-
-import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderResponseDTO; // Import DTO response mới
-import com.hust.coffeeshop.coffeeshopproject.entity.PurchaseOrder; // Vẫn cần import Entity nếu service trả về Entity
+import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderResponseDTO;
+import com.hust.coffeeshop.coffeeshopproject.entity.PurchaseOrder;
 import com.hust.coffeeshop.coffeeshopproject.service.PurchaseOrderService;
-import com.hust.coffeeshop.coffeeshopproject.service.PurchaseOrderService.PurchaseOrderDetailRequest; // Vẫn cần cho request body
+import com.hust.coffeeshop.coffeeshopproject.dto.PurchaseOrderDetailRequestDTO; // Import đúng DTO request mới
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,29 +21,27 @@ public class PurchaseOrderController {
     }
 
     @PostMapping
-    public ResponseEntity<PurchaseOrderResponseDTO> createPurchaseOrder( // <-- Thay đổi kiểu trả về sang DTO
-                                                                         @RequestParam Integer supplierId,
-                                                                         @RequestBody List<PurchaseOrderDetailRequest> details) {
+    public ResponseEntity<PurchaseOrderResponseDTO> createPurchaseOrder(
+            @RequestParam Long supplierId, // SỬA TẠI ĐÂY
+            @RequestBody List<PurchaseOrderDetailRequestDTO> details) {
         try {
-            // Service vẫn trả về Entity, sau đó Controller sẽ chuyển đổi nó thành DTO
             PurchaseOrder purchaseOrder = purchaseOrderService.createPurchaseOrder(supplierId, details);
-            PurchaseOrderResponseDTO responseDTO = purchaseOrderService.convertToPurchaseOrderDTO(purchaseOrder); // <-- Ánh xạ sang DTO
+            PurchaseOrderResponseDTO responseDTO = purchaseOrderService.convertToPurchaseOrderDTO(purchaseOrder);
 
-            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED); // <-- Trả về DTO
+            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            // Nên log lỗi chi tiết hơn trong môi trường thực tế
             System.err.println("Error creating purchase order: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<PurchaseOrderResponseDTO> updatePurchaseOrderStatus( // <-- Cũng thay đổi kiểu trả về ở đây
-                                                                               @PathVariable Integer id,
-                                                                               @RequestParam String status) {
+    public ResponseEntity<PurchaseOrderResponseDTO> updatePurchaseOrderStatus(
+            @PathVariable Long id, // SỬA TẠI ĐÂY
+            @RequestParam String status) {
         try {
             PurchaseOrder updatedOrder = purchaseOrderService.updatePurchaseOrderStatus(id, status);
-            PurchaseOrderResponseDTO responseDTO = purchaseOrderService.convertToPurchaseOrderDTO(updatedOrder); // <-- Ánh xạ sang DTO
+            PurchaseOrderResponseDTO responseDTO = purchaseOrderService.convertToPurchaseOrderDTO(updatedOrder);
             return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             System.err.println("Error updating purchase order status: " + e.getMessage());

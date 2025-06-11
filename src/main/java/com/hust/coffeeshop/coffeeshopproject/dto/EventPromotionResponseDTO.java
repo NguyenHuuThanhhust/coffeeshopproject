@@ -1,20 +1,22 @@
-// src/main/java/com/hust/coffeeshop/coffeeshopproject/dto/EventPromotionResponseDTO.java
 package com.hust.coffeeshop.coffeeshopproject.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor; // Thêm NoArgsConstructor
+import lombok.AllArgsConstructor; // Thêm AllArgsConstructor
 import java.math.BigDecimal;
-import java.time.LocalDate; // Sử dụng LocalDate
+import java.time.LocalDate;
 
 @Data
+@NoArgsConstructor // Thêm
+@AllArgsConstructor // Thêm
 public class EventPromotionResponseDTO {
-    private Integer promotionId;
+    private Long promotionId; // Đã sửa từ Integer sang Long
     private String promotionName;
     private String description;
-    private String promotionType; // Thêm vào
+    private String promotionType;
     private BigDecimal value;
-    private Integer remainingUses; // Thêm vào
+    private Integer remainingUses;
     private LocalDate startDate;
     private LocalDate endDate;
-    private BigDecimal minOrderAmount; // Thêm vào
-
+    private BigDecimal minOrderAmount;
 }

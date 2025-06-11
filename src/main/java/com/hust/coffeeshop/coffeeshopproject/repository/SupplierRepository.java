@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SupplierRepository extends JpaRepository<Supplier, Integer> {
+public interface SupplierRepository extends JpaRepository<Supplier, Long> { // SỬA TẠI ĐÂY: Integer -> Long
     Optional<Supplier> findBySupplierName(String supplierName);
 }

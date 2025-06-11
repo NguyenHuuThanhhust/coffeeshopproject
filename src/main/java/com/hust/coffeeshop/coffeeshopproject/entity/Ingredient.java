@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.time.LocalDate;
+import java.math.BigDecimal; // Import BigDecimal
 import java.util.List;
 
 @Entity
@@ -17,26 +18,23 @@ public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ingredientid")
-    private Integer ingredientId;
+    private Long ingredientId; // SỬA TẠI ĐÂY: Integer -> Long
 
-    @Column(name = "ingredientname", length = 255, nullable = false, unique = true)
+    @Column(name = "ingredientname", length = 100, nullable = false, unique = true) // Max length 100
     private String ingredientName;
 
-    @Column(name = "unitofmeasure", length = 50)
+    @Column(name = "unitofmeasure", length = 20, nullable = false) // Max length 20
     private String unitOfMeasure;
 
-    @Column(name = "currentstock", nullable = false)
-    private Double currentStock;
+    @Column(name = "currentstock", nullable = false, precision = 10, scale = 2) // SỬA TẠI ĐÂY: Double -> BigDecimal
+    private BigDecimal currentStock = BigDecimal.ZERO; // Set default
 
-    @Column(name = "minstocklevel")
-    private Double minStockLevel;
+    @Column(name = "minstocklevel", precision = 10, scale = 2) // SỬA TẠI ĐÂY: Double -> BigDecimal
+    private BigDecimal minStockLevel = BigDecimal.ZERO; // Set default
 
     @Column(name = "lastrestockdate")
     private LocalDate lastRestockDate;
 
-    // Mối quan hệ hai chiều với PurchaseOrderDetail (nếu có)
     @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    // KHÔNG CÓ ANNOTATION JACKSON Ở ĐÂY
     private List<PurchaseOrderDetail> purchaseOrderDetails;
-    // Constructor, getters và setters nếu không dùng Lombok
 }

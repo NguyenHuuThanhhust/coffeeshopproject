@@ -1,4 +1,4 @@
-package com.hust.coffeeshop.coffeeshopproject.entity; // Đảm bảo đúng package
+package com.hust.coffeeshop.coffeeshopproject.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List; // If you have @OneToMany to CustomerOrder
+import java.util.List;
 
 @Entity
-@Table(name = "employee") // Correct table name
+@Table(name = "employee")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,28 +18,27 @@ public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "employeeid") // PK is Integer
-    private Integer employeeId;
+    @Column(name = "employeeid")
+    private Long employeeId; // SỬA TẠI ĐÂY: Integer -> Long
 
-    @Column(name = "employeename", nullable = false, length = 100) // Correct name
+    @Column(name = "employeename", nullable = false, length = 100)
     private String employeeName;
 
-    @Column(name = "position", length = 50) // Correct name
+    @Column(name = "position", length = 50)
     private String position;
 
-    @Column(name = "phonenumber", length = 20) // Correct name
+    @Column(name = "phonenumber", length = 20)
     private String phoneNumber;
 
-    @Column(name = "email", unique = true, length = 100) // Correct name and constraints
+    @Column(name = "email", unique = true, length = 100)
     private String email;
 
-    @Column(name = "startdate") // Correct name
-    private LocalDate startDate; // DATE type in DB
+    @Column(name = "startdate")
+    private LocalDate startDate;
 
-    @Column(name = "hourlywage", precision = 10, scale = 2) // Correct type and name
-    private BigDecimal hourlyWage;
+    @Column(name = "hourlywage", precision = 10, scale = 2)
+    private BigDecimal hourlyWage = BigDecimal.ZERO; // Set default
 
-    // Mối quan hệ 1-n với CustomerOrder
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CustomerOrder> customerOrders; // Giả định CustomerOrder có private Employee employee;
+    private List<CustomerOrder> customerOrders;
 }

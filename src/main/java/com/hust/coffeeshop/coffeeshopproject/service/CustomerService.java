@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomerService {
-    CustomerResponseDTO createCustomer(CustomerRequestDTO customerDTO);
+    CustomerResponseDTO createCustomer(CustomerRequestDTO customerDTO); // SỬA KIỂU TRẢ VỀ
 
     List<CustomerResponseDTO> getAllCustomers();
 
-    Optional<CustomerResponseDTO> getCustomerById(Integer id);
+    Optional<CustomerResponseDTO> getCustomerById(Long id);
 
-    CustomerResponseDTO updateCustomer(Integer id, CustomerRequestDTO customerDTO);
+    CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO customerDTO);
 
-    void deleteCustomer(Integer id);
+    void deleteCustomer(Long id);
+
+    Optional<CustomerResponseDTO> findCustomerByPhoneNumber(String phoneNumber);
 }

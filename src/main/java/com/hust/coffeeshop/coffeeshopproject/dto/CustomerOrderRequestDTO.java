@@ -1,31 +1,41 @@
 package com.hust.coffeeshop.coffeeshopproject.dto;
 
-import lombok.Data; // Yêu cầu Lombok hoặc tự viết getters/setters
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CustomerOrderRequestDTO {
-    private Integer customerId;
-    private Integer employeeId; // Có thể null
-    private Integer promotionId; // Có thể null
+
+    private Long customerId;
+    private String customerName;
+    private String phoneNumber;
+
+    // SỬA TẠI ĐÂY: XÓA TRƯỜNG employeeId NẾU BẠN KHÔNG CẦN GỬI NÓ
+    // private Long employeeId; // XÓA DÒNG NÀY
+
+    private Long promotionId;
 
     private LocalDateTime orderTime;
     private LocalDateTime expectedPickupTime;
 
-    // Các trường này có thể được tính toán ở backend, nhưng cũng có thể gửi lên
     private BigDecimal totalAmountUsd;
     private BigDecimal exchangeRate;
     private BigDecimal rankDiscount;
     private BigDecimal promotionDiscount;
 
-    private String orderStatus; // Ví dụ: "PENDING", "PROCESSING", "COMPLETED", "CANCELLED"
-    private String paymentMethod; // Ví dụ: "CASH", "CARD", "BANK_TRANSFER"
+    private String orderStatus;
+    private String paymentMethod;
     private Boolean isPaid;
+    private String Email;
     private String notes;
 
-    private List<OrderDetailRequestDTO> orderDetails; // Danh sách chi tiết đơn hàng
+    private List<OrderDetailRequestDTO> orderDetails;
 
-    public CustomerOrderRequestDTO() {}
 }

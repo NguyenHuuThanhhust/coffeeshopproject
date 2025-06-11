@@ -1,36 +1,35 @@
-package com.hust.coffeeshop.coffeeshopproject.entity; // Đảm bảo đúng package
+package com.hust.coffeeshop.coffeeshopproject.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
-import java.util.List; // Nếu bạn có @OneToMany đến Customer
+import java.util.List;
 
 @Entity
-@Table(name = "membership_rank") // Correct table name
+@Table(name = "membership_rank")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MembershipRank {
 
     @Id
-    @Column(name = "rankname") // PK is varchar(50)
+    @Column(name = "rankname")
     private String rankName;
 
-    @Column(name = "pointfrom", precision = 15, scale = 2) // Correct type and name
+    @Column(name = "pointfrom", precision = 15, scale = 2)
     private BigDecimal pointFrom;
 
-    @Column(name = "pointto", precision = 15, scale = 2) // Correct type and name
+    @Column(name = "pointto", precision = 15, scale = 2)
     private BigDecimal pointTo;
 
-    @Column(name = "discountrate", precision = 15, scale = 2) // Correct type and name
+    @Column(name = "discountrate", precision = 5, scale = 2) // NÊN SỬA PRECISION/SCALE
     private BigDecimal discountRate;
 
-    @Column(name = "loyaltypointrate", precision = 15, scale = 2) // Correct type and name
+    @Column(name = "loyaltypointrate", precision = 5, scale = 2) // NÊN SỬA PRECISION/SCALE
     private BigDecimal loyaltyPointRate;
 
-    // Mối quan hệ 1-n với Customer (nếu có)
     @OneToMany(mappedBy = "membershipRank", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Customer> customers; // Giả định Customer có private MembershipRank membershipRank;
+    private List<Customer> customers;
 }

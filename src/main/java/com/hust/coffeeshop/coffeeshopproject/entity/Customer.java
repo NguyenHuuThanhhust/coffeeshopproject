@@ -1,4 +1,4 @@
-package com.hust.coffeeshop.coffeeshopproject.entity; // Đảm bảo đúng package
+package com.hust.coffeeshop.coffeeshopproject.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List; // If you have @OneToMany to CustomerOrder
+import java.util.List;
 
 @Entity
-@Table(name = "customer") // Correct table name
+@Table(name = "customer")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,29 +18,43 @@ public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customerid") // PK is Integer
-    private Integer customerId;
+    @Column(name = "customerid")
+    private Long customerId; // SỬA TẠI ĐÂY: Integer -> Long
 
-    @Column(name = "customername", nullable = false, length = 100) // Correct name and constraints
+    @Column(name = "customername", nullable = false, length = 100)
     private String customerName;
 
-    @Column(name = "phonenumber", length = 20) // Correct name
+    @Column(name = "phonenumber", length = 20, unique = true, nullable = false) // Thêm unique, nullable=false
     private String phoneNumber;
 
-    @Column(name = "email", unique = true, length = 100) // Correct name and constraints
+    @Column(name = "email", unique = true, length = 100)
     private String email;
 
-    @Column(name = "datejoined") // Correct name
-    private LocalDate dateJoined; // DATE type in DB
+    @Column(name = "datejoined")
+    private LocalDate dateJoined = LocalDate.now(); // Set default ở đây hoặc DB
 
-    @Column(name = "totalspent", precision = 15, scale = 2) // Correct type and name
-    private BigDecimal totalSpent;
+    @Column(name = "totalspent", precision = 15, scale = 2)
+    private BigDecimal totalSpent = BigDecimal.ZERO; // Set default ở đây hoặc DB
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rank", nullable = false) // FK column name is 'rank' in DB
-    private MembershipRank membershipRank; // Matches name in MembershipRank's mappedBy
+    @JoinColumn(name = "rank", referencedColumnName = "rankname", nullable = false) // referencedColumnName="rankname"
+    private MembershipRank membershipRank;
 
-    // Mối quan hệ 1-n với CustomerOrder
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CustomerOrder> customerOrders; // Giả định CustomerOrder có private Customer customer;
+    private List<CustomerOrder> customerOrders;
+
+    // Constructor thêm để tiện cho việc tạo mới trong CustomerOrderService
+    public Customer(Long customerId, String customerName, String phoneNumber, String email, LocalDate dateJoined, BigDecimal totalSpent, String rankName, List<CustomerOrder> customerOrders) {
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.dateJoined = (dateJoined != null) ? dateJoined : LocalDate.now();
+        this.totalSpent = (totalSpent != null) ? totalSpent : BigDecimal.ZERO;
+        // Logic gán MembershipRank cần được handle trong Service hoặc Entity listener
+        // Tạm thời, rankName ở đây chỉ là String, không phải MembershipRank entity
+        // Bạn cần tải MembershipRank entity dựa trên rankName
+        // Ví dụ: this.membershipRank = new MembershipRank(rankName, null, null, null, null, null); // Chỉ là placeholder
+        this.customerOrders = customerOrders;
+    }
 }

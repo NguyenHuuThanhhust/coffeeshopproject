@@ -6,11 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime; // For TIMESTAMP
-import java.util.List; // If you have @OneToMany to OrderDetail
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "customer_order") // Correct table name
+@Table(name = "customer_order")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,55 +18,54 @@ public class CustomerOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orderid") // PK is Integer
-    private Integer orderId;
+    @Column(name = "orderid")
+    private Long orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customerid", nullable = false) // FK column name is 'customerid'
+    @JoinColumn(name = "customerid") // customerid có thể là nullable=false nếu DB có constraint
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employeeid") // FK column name is 'employeeid'
+    @JoinColumn(name = "employeeid") // SỬA TẠI ĐÂY: Bỏ nullable = false nếu có
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotionid") // FK column name is 'promotionid'
+    @JoinColumn(name = "promotionid")
     private EventPromotion eventPromotion;
 
-    @Column(name = "ordertime") // Correct name
-    private LocalDateTime orderTime; // TIMESTAMP type in DB
+    @Column(name = "ordertime")
+    private LocalDateTime orderTime;
 
-    @Column(name = "expectedpickuptime") // Correct name
-    private LocalDateTime expectedPickupTime; // TIMESTAMP type in DB
+    @Column(name = "expectedpickuptime")
+    private LocalDateTime expectedPickupTime;
 
-    @Column(name = "totalamount", precision = 10, scale = 2) // Correct type and name
+    @Column(name = "totalamount", precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(name = "totalamountusd", precision = 10, scale = 2) // Correct type and name
+    @Column(name = "totalamountusd", precision = 10, scale = 2)
     private BigDecimal totalAmountUsd;
 
-    @Column(name = "exchangerate", precision = 10, scale = 4) // Correct type and name
+    @Column(name = "exchangerate", precision = 10, scale = 4)
     private BigDecimal exchangeRate;
 
-    @Column(name = "rankdiscount", precision = 10, scale = 2) // Correct type and name
+    @Column(name = "rankdiscount", precision = 10, scale = 2)
     private BigDecimal rankDiscount;
 
-    @Column(name = "promotiondiscount", precision = 10, scale = 2) // Correct type and name
+    @Column(name = "promotiondiscount", precision = 10, scale = 2)
     private BigDecimal promotionDiscount;
 
-    @Column(name = "orderstatus", length = 30) // Correct name
+    @Column(name = "orderstatus", length = 30)
     private String orderStatus;
 
-    @Column(name = "paymentmethod", length = 50) // Correct name
+    @Column(name = "paymentmethod", length = 50)
     private String paymentMethod;
 
-    @Column(name = "ispaid") // Correct name
+    @Column(name = "ispaid")
     private Boolean isPaid;
 
-    @Column(name = "notes") // Correct name
+    @Column(name = "notes")
     private String notes;
 
-    // Mối quan hệ 1-n với OrderDetail
     @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderDetail> orderDetails; // Giả định OrderDetail có private CustomerOrder customerOrder;
+    private List<OrderDetail> orderDetails;
 }

@@ -30,34 +30,30 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerResponseDTO> getCustomerById(@PathVariable Integer id) {
+    public ResponseEntity<CustomerResponseDTO> getCustomerById(@PathVariable Long id) {
         return customerService.getCustomerById(id)
                 .map(customerDTO -> new ResponseEntity<>(customerDTO, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable Integer id, @RequestBody CustomerRequestDTO customerDTO) {
-
+    public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerRequestDTO customerDTO) { // SỬA TẠI ĐÂY
         try {
             CustomerResponseDTO updatedCustomer = customerService.updateCustomer(id, customerDTO);
             return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
         } catch (jakarta.persistence.EntityNotFoundException e) {
-
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
-
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Hoặc 409 Conflict
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) { // SỬA TẠI ĐÂY
         try {
             customerService.deleteCustomer(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (jakarta.persistence.EntityNotFoundException e) {
-
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

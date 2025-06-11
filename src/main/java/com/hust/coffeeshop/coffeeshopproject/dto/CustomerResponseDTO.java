@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerResponseDTO {
-    private Integer customerId;
+    private Long customerId; // Đã sửa từ Integer sang Long
     private String customerName;
     private String phoneNumber;
     private String email;
