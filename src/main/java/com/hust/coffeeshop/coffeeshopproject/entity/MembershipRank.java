@@ -24,10 +24,10 @@ public class MembershipRank {
     @Column(name = "pointto", precision = 15, scale = 2)
     private BigDecimal pointTo;
 
-    @Column(name = "discountrate", precision = 5, scale = 2) // NÊN SỬA PRECISION/SCALE
+    @Column(name = "discountrate", precision = 5, scale = 2) 
     private BigDecimal discountRate;
 
-    @Column(name = "loyaltypointrate", precision = 5, scale = 2) // NÊN SỬA PRECISION/SCALE
+    @Column(name = "loyaltypointrate", precision = 5, scale = 2) 
     private BigDecimal loyaltyPointRate;
 
     @OneToMany(mappedBy = "membershipRank", cascade = CascadeType.ALL, orphanRemoval = true)

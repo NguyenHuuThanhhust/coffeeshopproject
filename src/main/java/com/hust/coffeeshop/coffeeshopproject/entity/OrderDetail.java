@@ -17,15 +17,15 @@ public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "orderdetailid")
-    private Long orderDetailId; // SỬA TẠI ĐÂY: Integer -> Long
+    private Long orderDetailId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderid", nullable = false)
-    private CustomerOrder customerOrder; // CustomerOrder.orderId là Long
+    private CustomerOrder customerOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menuitemid", nullable = false)
-    private MenuItem menuItem; // MenuItem.menuItemId là Long
+    private MenuItem menuItem;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;

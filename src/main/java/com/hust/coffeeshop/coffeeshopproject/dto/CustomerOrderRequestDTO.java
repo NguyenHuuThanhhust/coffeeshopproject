@@ -16,10 +16,6 @@ public class CustomerOrderRequestDTO {
     private Long customerId;
     private String customerName;
     private String phoneNumber;
-
-    // SỬA TẠI ĐÂY: XÓA TRƯỜNG employeeId NẾU BẠN KHÔNG CẦN GỬI NÓ
-    // private Long employeeId; // XÓA DÒNG NÀY
-
     private Long promotionId;
 
     private LocalDateTime orderTime;

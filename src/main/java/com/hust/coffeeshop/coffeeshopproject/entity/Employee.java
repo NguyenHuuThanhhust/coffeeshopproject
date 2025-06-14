@@ -19,7 +19,7 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "employeeid")
-    private Long employeeId; // SỬA TẠI ĐÂY: Integer -> Long
+    private Long employeeId;
 
     @Column(name = "employeename", nullable = false, length = 100)
     private String employeeName;
@@ -37,7 +37,7 @@ public class Employee {
     private LocalDate startDate;
 
     @Column(name = "hourlywage", precision = 10, scale = 2)
-    private BigDecimal hourlyWage = BigDecimal.ZERO; // Set default
+    private BigDecimal hourlyWage = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerOrder> customerOrders;

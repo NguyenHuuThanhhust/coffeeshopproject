@@ -18,11 +18,11 @@ public class PurchaseOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "purchaseorderid")
-    private Long purchaseOrderId; // SỬA TẠI ĐÂY: Integer -> Long
+    private Long purchaseOrderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplierid", nullable = false)
-    private Supplier supplier; // Supplier.supplierId là Long
+    private Supplier supplier;
 
     @Column(name = "orderdate", nullable = false)
     private LocalDate orderDate;
@@ -33,7 +33,7 @@ public class PurchaseOrder {
     @Column(name = "actualdeliverydate")
     private LocalDate actualDeliveryDate;
 
-    @Column(name = "orderstatus", length = 30, nullable = false) // Thêm length 30
+    @Column(name = "orderstatus", length = 30, nullable = false)
     private String orderStatus;
 
     @Column(name = "totalamount", precision = 10, scale = 2)

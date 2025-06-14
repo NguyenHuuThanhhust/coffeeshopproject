@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MenuItemRepository extends JpaRepository<MenuItem, Long> { // SỬA TẠI ĐÂY: Integer -> Long
+public interface MenuItemRepository extends JpaRepository<MenuItem, Long> { 
     Optional<MenuItem> findByItemName(String itemName);
 }

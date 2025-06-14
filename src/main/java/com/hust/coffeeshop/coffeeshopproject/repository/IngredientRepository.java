@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface IngredientRepository extends JpaRepository<Ingredient, Long> { // SỬA TẠI ĐÂY: Integer -> Long
+public interface IngredientRepository extends JpaRepository<Ingredient, Long> { 
     Optional<Ingredient> findByIngredientName(String ingredientName);
 }

@@ -16,9 +16,9 @@ public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "supplierid")
-    private Long supplierId; // SỬA TẠI ĐÂY: Integer -> Long
+    private Long supplierId;
 
-    @Column(name = "suppliername", length = 100, nullable = false, unique = true) // Thêm length 100
+    @Column(name = "suppliername", length = 100, nullable = false, unique = true)
     private String supplierName;
 
     @Column(name = "contactperson", length = 100)

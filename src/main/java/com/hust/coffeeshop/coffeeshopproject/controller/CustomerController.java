@@ -3,10 +3,12 @@ package com.hust.coffeeshop.coffeeshopproject.controller;
 import com.hust.coffeeshop.coffeeshopproject.dto.CustomerRequestDTO;
 import com.hust.coffeeshop.coffeeshopproject.dto.CustomerResponseDTO;
 import com.hust.coffeeshop.coffeeshopproject.service.CustomerService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 
@@ -19,8 +21,14 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<CustomerResponseDTO> createCustomer(@RequestBody CustomerRequestDTO customerDTO) {
-        CustomerResponseDTO createdCustomer = customerService.createCustomer(customerDTO);
-        return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
+        try {
+            CustomerResponseDTO createdCustomer = customerService.createCustomer(customerDTO);
+            return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping
@@ -36,24 +44,41 @@ public class CustomerController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<CustomerResponseDTO> searchCustomerByPhoneNumber(@RequestParam String phoneNumber) {
+        return customerService.findCustomerByPhoneNumber(phoneNumber)
+                .map(customerDTO -> new ResponseEntity<>(customerDTO, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerRequestDTO customerDTO) { // SỬA TẠI ĐÂY
+    public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerRequestDTO customerDTO,
+                                                              @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        if (!"Manager".equalsIgnoreCase(userRole)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             CustomerResponseDTO updatedCustomer = customerService.updateCustomer(id, customerDTO);
             return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
-        } catch (jakarta.persistence.EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Hoặc 409 Conflict
+        } catch (DataIntegrityViolationException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) { // SỬA TẠI ĐÂY
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id,
+                                               @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        if (!"Manager".equalsIgnoreCase(userRole)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         try {
             customerService.deleteCustomer(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (jakarta.persistence.EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

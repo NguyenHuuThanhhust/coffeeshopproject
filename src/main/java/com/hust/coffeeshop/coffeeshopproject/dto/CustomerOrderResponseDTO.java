@@ -15,12 +15,8 @@ public class CustomerOrderResponseDTO {
     private Long orderId;
     private Long customerId;
     private String customerName;
-    // SỬA TẠI ĐÂY: XÓA TRƯỜNG employeeId VÀ employeeName
-    // private Long employeeId; // XÓA DÒNG NÀY
-    // private String employeeName; // XÓA DÒNG NÀY
     private Long promotionId;
     private String promotionName;
-
     private LocalDateTime orderTime;
     private LocalDateTime expectedPickupTime;
     private BigDecimal totalAmount;

@@ -16,17 +16,17 @@ public class PurchaseOrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "purchaseorderdetailid")
-    private Long purchaseOrderDetailId; // SỬA TẠI ĐÂY: Integer -> Long
+    private Long purchaseOrderDetailId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchaseorderid", nullable = false)
-    private PurchaseOrder purchaseOrder; // PurchaseOrder.purchaseOrderId là Long
+    private PurchaseOrder purchaseOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredientid", nullable = false)
-    private Ingredient ingredient; // Ingredient.ingredientId là Long
+    private Ingredient ingredient;
 
-    @Column(name = "quantityordered", nullable = false, precision = 10, scale = 2) // SỬA TẠI ĐÂY: Double -> BigDecimal
+    @Column(name = "quantityordered", nullable = false, precision = 10, scale = 2)
     private BigDecimal quantityOrdered;
 
     @Column(name = "unitprice", precision = 10, scale = 2, nullable = false)

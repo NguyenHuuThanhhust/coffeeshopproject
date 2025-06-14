@@ -18,30 +18,30 @@ public class MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "menuitemid")
-    private Long menuItemId; // SỬA TẠI ĐÂY: Integer -> Long
+    private Long menuItemId;
 
-    @Column(name = "itemname", nullable = false, length = 100) // Thêm length 100
+    @Column(name = "itemname", nullable = false, length = 100)
     private String itemName;
 
-    @Column(name = "description", columnDefinition = "TEXT") // Sử dụng columnDefinition cho TEXT
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2) // SỬA TẠI ĐÂY: Double -> BigDecimal
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "category", length = 50) // Thêm length 50
+    @Column(name = "category", length = 50)
     private String category;
 
-    @Column(name = "status", length = 20) // Thêm length 20
+    @Column(name = "status", length = 20)
     private String status;
 
     @Column(name = "isavailable")
     private Boolean isAvailable;
 
-    @Column(name = "imageurl", length = 255) // URL là String, không cần @Lob
+    @Column(name = "imageurl", length = 255)
     private String imageUrl;
 
-    @Column(name = "thumbnail") // byte[] cho dữ liệu nhị phân
+    @Column(name = "thumbnail")
     private byte[] thumbnail;
 
     @Column(name = "minsellingprice", precision = 10, scale = 2)

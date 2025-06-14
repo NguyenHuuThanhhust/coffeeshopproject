@@ -19,25 +19,25 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customerid")
-    private Long customerId; // SỬA TẠI ĐÂY: Integer -> Long
+    private Long customerId; 
 
     @Column(name = "customername", nullable = false, length = 100)
     private String customerName;
 
-    @Column(name = "phonenumber", length = 20, unique = true, nullable = false) // Thêm unique, nullable=false
+    @Column(name = "phonenumber", length = 20, unique = true, nullable = false)
     private String phoneNumber;
 
     @Column(name = "email", unique = true, length = 100)
     private String email;
 
     @Column(name = "datejoined")
-    private LocalDate dateJoined = LocalDate.now(); // Set default ở đây hoặc DB
+    private LocalDate dateJoined = LocalDate.now();
 
     @Column(name = "totalspent", precision = 15, scale = 2)
-    private BigDecimal totalSpent = BigDecimal.ZERO; // Set default ở đây hoặc DB
+    private BigDecimal totalSpent = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rank", referencedColumnName = "rankname", nullable = false) // referencedColumnName="rankname"
+    @JoinColumn(name = "rank", referencedColumnName = "rankname", nullable = false)
     private MembershipRank membershipRank;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -51,10 +51,6 @@ public class Customer {
         this.email = email;
         this.dateJoined = (dateJoined != null) ? dateJoined : LocalDate.now();
         this.totalSpent = (totalSpent != null) ? totalSpent : BigDecimal.ZERO;
-        // Logic gán MembershipRank cần được handle trong Service hoặc Entity listener
-        // Tạm thời, rankName ở đây chỉ là String, không phải MembershipRank entity
-        // Bạn cần tải MembershipRank entity dựa trên rankName
-        // Ví dụ: this.membershipRank = new MembershipRank(rankName, null, null, null, null, null); // Chỉ là placeholder
         this.customerOrders = customerOrders;
     }
 }

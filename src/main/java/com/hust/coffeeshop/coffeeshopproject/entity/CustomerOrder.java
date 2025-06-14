@@ -22,11 +22,11 @@ public class CustomerOrder {
     private Long orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customerid") // customerid có thể là nullable=false nếu DB có constraint
+    @JoinColumn(name = "customerid")
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employeeid") // SỬA TẠI ĐÂY: Bỏ nullable = false nếu có
+    @JoinColumn(name = "employeeid")
     private Employee employee;
 
     @ManyToOne(fetch = FetchType.LAZY)

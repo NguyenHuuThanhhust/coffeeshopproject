@@ -1,15 +1,15 @@
 package com.hust.coffeeshop.coffeeshopproject.dto;
 
 import lombok.Data;
-import lombok.NoArgsConstructor; // Thêm NoArgsConstructor
-import lombok.AllArgsConstructor; // Thêm AllArgsConstructor
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
 
 @Data
-@NoArgsConstructor // Thêm
-@AllArgsConstructor // Thêm
+@NoArgsConstructor
+@AllArgsConstructor
 public class PurchaseOrderDetailRequestDTO {
-    private Long ingredientId; // Đã sửa từ Integer sang Long
+    private Long ingredientId;
     private BigDecimal quantityOrdered;
     private BigDecimal unitPrice;
 }
