@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop Management</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 1rem; border-radius: 8px; width: 90%; max-width: 500px; position: relative; }
+        .close-button { position: absolute; top: 10px; right: 10px; cursor: pointer; font-size: 1.2rem; }
+
+        /* Khuyến mãi trong giỏ hàng */
+        .promotion-input-section {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .promotion-input-section input {
+            flex-grow: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: var(--text-color);
+        }
+        .promotion-input-section button {
+            background-color: var(--dark-gray);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .promotion-input-section button:hover {
+            background-color: var(--text-color);
+        }
+        .applied-promotion-display {
+            font-size: 14px;
+            color: #e0e0e0;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .applied-promotion-display.active {
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <aside class="sidebar-menu">
+        <button class="menu-button active" data-view="homeView">Product</button>
+        <button class="menu-button" data-view="storeView">Store</button>
+        <button class="menu-button" data-view="manageProductView">Menu</button>
+        <button class="menu-button" data-view="reportView">Report</button>
+        <img src="/images/penguin.png" class="penguin-sidebar" alt="Penguin" />
+    </aside>
+
+
+    <main class="main-content">
+        <div id="homeView" class="content-view active">
+            <h2>Menu</h2>
+            <div class="category-buttons">
+                <button class="category-button active" data-category="all">Tất cả</button>
+                <button class="category-button" data-category="coffee">Cà Phê</button>
+                <button class="category-button" data-category="iced">Đá Xay</button>
+                <button class="category-button" data-category="tea">Trà</button>
+                <button class="category-button" data-category="soda">Soda</button>
+                <button class="category-button" data-category="other">Thức Uống Khác</button>
+                <button class="category-button" data-category="cake">Bánh</button>
+            </div>
+            <div class="menu-items-grid" id="menuItemsGrid"></div>
+        </div>
+
+        <div id="storeView" class="content-view">
+            <h2>Store Inventory</h2>
+            <button id="addRestockIngredientBtn">+ Nhập nguyên liệu</button>
+            <div class="ingredient-list" id="ingredientList">
+                <div class="ingredient-header">
+                    <span>Tên nguyên liệu</span>
+                    <span>Đơn vị</span>
+                    <span>Tồn kho hiện tại</span>
+                    <span>Mức tối thiểu</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="manageProductView" class="content-view">
+            <h2>Quản lý menu (yêu cầu quyền Manager)</h2>
+            <button id="addMenuItemBtn">+ Thêm món mới</button>
+            <div class="menu-items-grid" id="productMenuItemsGrid"></div>
+        </div>
+        <div id="reportView" class="content-view">
+            <h2>Báo Cáo</h2>
+
+            <h3>Doanh Số Theo Ngày</h3>
+            <table id="dailySalesTable" class="report-table">
+                <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Số đơn</th>
+                    <th>Doanh thu (VND)</th>
+                    <th>Doanh thu (USD)</th>
+                    <th>Giảm hạng</th>
+                    <th>Khuyến mãi</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <h3>Hiệu Suất Bán Sản Phẩm</h3>
+            <table id="productSalesTable" class="report-table">
+                <thead>
+                <tr>
+                    <th>Tên món</th>
+                    <th>Loại</th>
+                    <th>Số lượng</th>
+                    <th>Doanh thu (VND)</th>
+                    <th>Doanh thu (USD)</th>
+                    <th>Số đơn</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+
+    <aside class="cart-sidebar">
+        <h2>Cart</h2>
+        <div class="customer-info">
+            <label for="customerPhone">Số điện thoại:</label>
+            <input type="text" id="customerPhone" placeholder="09xxxxxx">
+            <label for="customerName">Tên khách hàng:</label>
+            <input type="text" id="customerName" placeholder="Tên khách hàng" readonly>
+            <label for="orderNotes">Ghi chú đơn hàng:</label>
+            <textarea id="orderNotes" rows="3" placeholder="VD: Không đá, giao lúc 9h..."></textarea>
+            <button id="searchCustomerBtn">Tìm</button>
+        </div>
+
+        <div class="promotion-section">
+            <label for="promotionCodeInput">Mã khuyến mãi (ID):</label>
+            <div class="promotion-input-section">
+                <input type="number" id="promotionCodeInput" placeholder="Nhập ID KM">
+                <button id="applyPromotionBtn">Áp dụng</button>
+            </div>
+            <span id="appliedPromotionDisplay" class="applied-promotion-display"></span>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-item-header">
+                <span>Tên sản phẩm</span>
+                <span>Giá</span>
+                <span>SL</span>
+                <span>Tổng</span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <span>Tổng tiền:</span>
+            <span id="cartTotal">0 VND</span>
+        </div>
+        <button id="checkoutBtn" class="checkout-button">Thanh toán</button>
+    </aside>
+</div>
+
+<div id="addMenuItemModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <form id="addMenuItemForm">
+            <input id="newMenuItemName" placeholder="Tên món">
+            <input id="newMenuItemPrice" type="number" step="any" placeholder="Giá bán">
+            <input id="newMenuItemMinSellingPrice" type="number" step="any" placeholder="Giá thấp nhất">
+            <input id="newMenuItemCategory" placeholder="Loại">
+            <input id="newMenuItemImageUrl" placeholder="Link ảnh">
+            <select id="newMenuItemStatus">
+                <option value="Available">Có sẵn</option>
+                <option value="Unavailable">Hết</option>
+            </select>
+            <label><input type="checkbox" id="newMenuItemIsAvailable"> Còn bán</label>
+            <button type="submit">Lưu</button>
+        </form>
+    </div>
+</div>
+
+<div id="addRestockIngredientModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <form id="addRestockIngredientForm">
+            <input id="ingredientNameSearch" placeholder="Tên nguyên liệu">
+            <input type="hidden" id="ingredientIdFound">
+            <input id="ingredientUnit" placeholder="Đơn vị">
+            <input id="ingredientCurrentStock" placeholder="Tồn kho" readonly>
+            <input id="ingredientMinStockLevel" placeholder="Tồn tối thiểu">
+            <input id="ingredientQuantityChange" type="number" step="any" placeholder="Nhập thêm bao nhiêu">
+            <button type="button" id="searchIngredientBtn">Tìm</button>
+            <button type="submit" id="submitIngredientForm">Lưu</button>
+        </form>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
